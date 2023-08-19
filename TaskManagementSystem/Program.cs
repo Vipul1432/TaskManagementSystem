@@ -1,6 +1,8 @@
 
 using Microsoft.EntityFrameworkCore;
+using TaskManagementSystem.Data;
 using TaskManagementSystem.Data.Context;
+using TaskManagementSystem.Domain.Interfaces;
 
 namespace TaskManagementSystem
 {
@@ -16,6 +18,8 @@ namespace TaskManagementSystem
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("taskManagementDbEntities"));
             });
+
+            builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
