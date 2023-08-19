@@ -119,5 +119,24 @@ namespace TaskManagementSystem.Controllers
             return Ok(new { Message = "Comment added successfully." });
         }
 
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<Task>>> SearchTasks(string keyword = null,string sortBy = "dueDate",string sortOrder = "asc")
+        {
+            var tasks = await _taskRepository.SearchTasks(keyword);
+
+            switch (sortBy.ToLower())
+            {
+                case "priority":
+                    tasks = sortOrder.ToLower() == "desc" ? tasks.OrderByDescending(t => t.Priority) : tasks.OrderBy(t => t.Priority);
+                    break;
+                case "duedate":
+                    tasks = sortOrder.ToLower() == "desc" ? tasks.OrderByDescending(t => t.DueDate) : tasks.OrderBy(t => t.DueDate);
+                    break;
+                default:
+                    tasks = tasks.OrderBy(t => t.DueDate);
+                    break;
+            }
+            return Ok(tasks);
+        }
     }
 }

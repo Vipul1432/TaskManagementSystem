@@ -68,5 +68,19 @@ namespace TaskManagementSystem.Data.Repository
             _context.Comments.Add(comment);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<IEnumerable<Task>> SearchTasks(string keyword)
+        {
+            var query = _context.Tasks.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                query = query.Where(t =>
+                    t.Title.Contains(keyword) ||
+                    t.Description.Contains(keyword));
+            }
+
+            return await query.ToListAsync();
+        }
     }
 }
