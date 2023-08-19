@@ -16,5 +16,6 @@ namespace TaskManagementSystem.Data.Context
         }
 
         public DbSet<TaskManagementSystem.Domain.Models.Task> Tasks { get; set; }
+        public DbSet<Comment> Comments { get; set; }
     }
 }

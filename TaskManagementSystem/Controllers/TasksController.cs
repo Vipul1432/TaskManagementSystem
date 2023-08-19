@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using TaskManagementSystem.Domain.Interfaces;
 using TaskManagementSystem.Domain.Models;
 using Task = TaskManagementSystem.Domain.Models.Task;
@@ -95,5 +96,28 @@ namespace TaskManagementSystem.Controllers
 
             return Ok(new { Message = $"Task {task.Id} assigned to user {user.UserName} successfully." });
         }
+
+        [HttpPost("{taskId}/comments")]
+        public async Task<IActionResult> AddComment(int taskId, [FromBody] CommentModel commentModel)
+        {
+            var task = await _taskRepository.GetTaskById(taskId);
+            if (task == null)
+            {
+                return NotFound("Task not found.");
+            }
+
+            var comment = new Comment
+            {
+                TaskId = taskId,
+                Content = commentModel.Content,
+                CreatedAt = DateTime.UtcNow,
+                UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value!
+            };
+
+            await _taskRepository.AddComment(comment);
+
+            return Ok(new { Message = "Comment added successfully." });
+        }
+
     }
 }

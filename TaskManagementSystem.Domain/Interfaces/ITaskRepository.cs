@@ -15,5 +15,6 @@ namespace TaskManagementSystem.Domain.Interfaces
         Task<TaskManagementSystem.Domain.Models.Task> UpdateTask(TaskManagementSystem.Domain.Models.Task task);
         System.Threading.Tasks.Task DeleteTask(int id);
         System.Threading.Tasks.Task AssignTask(int taskId, string userId);
+        System.Threading.Tasks.Task AddComment(Comment comment);
     }
 }

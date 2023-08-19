@@ -63,5 +63,10 @@ namespace TaskManagementSystem.Data.Repository
                 await _context.SaveChangesAsync();
             }
         }
+        public async System.Threading.Tasks.Task AddComment(Comment comment)
+        {
+            _context.Comments.Add(comment);
+            await _context.SaveChangesAsync();
+        }
     }
 }
