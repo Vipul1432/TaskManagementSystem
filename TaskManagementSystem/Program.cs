@@ -1,4 +1,7 @@
 
+using Microsoft.EntityFrameworkCore;
+using TaskManagementSystem.Data.Context;
+
 namespace TaskManagementSystem
 {
     public class Program
@@ -8,6 +11,11 @@ namespace TaskManagementSystem
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+
+            builder.Services.AddDbContextPool<TaskManagementDbContext>(options =>
+            {
+                options.UseSqlServer(builder.Configuration.GetConnectionString("taskManagementDbEntities"));
+            });
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -24,7 +32,8 @@ namespace TaskManagementSystem
             }
 
             app.UseHttpsRedirection();
-
+            // Authentication Service
+            app.UseAuthentication();
             app.UseAuthorization();
 
 
