@@ -9,7 +9,7 @@ using TaskManagementSystem.Domain.Interfaces;
 using TaskManagementSystem.Domain.Models;
 using Task = TaskManagementSystem.Domain.Models.Task;
 
-namespace TaskManagementSystem.Data
+namespace TaskManagementSystem.Data.Repository
 {
     public class TaskRepository : ITaskRepository
     {
@@ -20,12 +20,12 @@ namespace TaskManagementSystem.Data
             _context = context;
         }
 
-        public async Task<IEnumerable<TaskManagementSystem.Domain.Models.Task>> GetAllTasks()
+        public async Task<IEnumerable<Task>> GetAllTasks()
         {
             return await _context.Tasks.ToListAsync();
         }
 
-        public async Task<Task?> GetTaskById(int id)
+        public async Task<Task> GetTaskById(int id)
         {
             return await _context.Tasks.FindAsync(id);
         }
@@ -50,6 +50,16 @@ namespace TaskManagementSystem.Data
             if (task != null)
             {
                 _context.Tasks.Remove(task);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async System.Threading.Tasks.Task AssignTask(int taskId, string userId)
+        {
+            var task = await _context.Tasks.FindAsync(taskId);
+            if (task != null)
+            {
+                task.AssignedUserId = userId;
                 await _context.SaveChangesAsync();
             }
         }

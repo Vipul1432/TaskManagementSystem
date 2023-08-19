@@ -22,6 +22,7 @@ namespace TaskManagementSystem.Domain.Models
         public DateTime DueDate { get; set; }
 
         public string Priority { get; set; }
+        public string? AssignedUserId { get; set; }
 
     }
 }

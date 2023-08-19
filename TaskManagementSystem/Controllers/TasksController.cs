@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TaskManagementSystem.Domain.Interfaces;
 using TaskManagementSystem.Domain.Models;
@@ -8,20 +9,23 @@ namespace TaskManagementSystem.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    //[Authorize]
+    [Authorize]
     public class TasksController : ControllerBase
     {
         private readonly ITaskRepository _taskRepository;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public TasksController(ITaskRepository taskRepository)
+        public TasksController(ITaskRepository taskRepository, UserManager<IdentityUser> userManager)
         {
             _taskRepository = taskRepository;
+            _userManager = userManager;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Task>>> GetTasks()
         {
-            return Ok(await _taskRepository.GetAllTasks());
+            var tasks = await _taskRepository.GetAllTasks();
+            return Ok(tasks);
         }
 
         [HttpGet("{id}")]
@@ -30,7 +34,7 @@ namespace TaskManagementSystem.Controllers
             var task = await _taskRepository.GetTaskById(id);
             if (task == null)
             {
-                return NotFound();
+                return NotFound("Task not found.");
             }
             return Ok(task);
         }
@@ -48,7 +52,7 @@ namespace TaskManagementSystem.Controllers
             Task existingTask = await _taskRepository.GetTaskById(id);
             if (existingTask == null)
             {
-               return NotFound(id);
+                return NotFound($"Task with ID {id} not found.");
             }
             existingTask.Title = task.Title;
             existingTask.Description = task.Description;
@@ -59,17 +63,37 @@ namespace TaskManagementSystem.Controllers
             var updatedTask = await _taskRepository.UpdateTask(existingTask);
             if (updatedTask == null)
             {
-                return NotFound();
+                return NotFound("Failed to update task.");
             }
 
-            return NoContent();
+            return Ok(new { Message = "Task updated successfully." });
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTask(int id)
         {
             await _taskRepository.DeleteTask(id);
-            return NoContent();
+            return Ok(new { Message = "Task deleted successfully." });
+        }
+
+        [HttpPost("{taskId}/assign/{username}")]
+        public async Task<IActionResult> AssignTask(int taskId, string username)
+        {
+            var task = await _taskRepository.GetTaskById(taskId);
+            if (task == null)
+            {
+                return NotFound("Task not found.");
+            }
+
+            var user = await _userManager.FindByNameAsync(username);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            await _taskRepository.AssignTask(taskId, user.Id);
+
+            return Ok(new { Message = $"Task {task.Id} assigned to user {user.UserName} successfully." });
         }
     }
 }
